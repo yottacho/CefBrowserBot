@@ -1,0 +1,44 @@
+﻿<UserControl
+    x:Class="CefBrowserBot.Views.TabMain"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fa5="http://schemas.fontawesome.com/icons/"
+    xmlns:local="clr-namespace:CefBrowserBot.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="clr-namespace:CefBrowserBot.Views"
+    xmlns:viewmodel="clr-namespace:CefBrowserBot.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    DataContext="{Binding TabMainViewModel, Source={StaticResource Locator}}"
+    mc:Ignorable="d">
+
+    <TabControl ItemsSource="{Binding TabListSource}" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+        <!--  Header  -->
+        <TabControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel
+                    Margin="0,0,0,0"
+                    Background="{Binding TabHeaderBackground}"
+                    Orientation="Horizontal">
+                    <TextBlock Text="{Binding TabHeaderTitle}" ToolTip="{Binding Title}" />
+                    <Button
+                        Margin="0,0,0,0"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Command="{Binding TabHeaderButtonCommand}"
+                        CommandParameter="{Binding TabHeaderButtonParameter}"
+                        Content="{Binding TabHeaderButtonContent}" />
+                </StackPanel>
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+
+        <!--  Content  -->
+        <TabControl.ContentTemplate>
+            <DataTemplate>
+                <ContentControl Content="{Binding ViewContent}" />
+            </DataTemplate>
+        </TabControl.ContentTemplate>
+    </TabControl>
+
+</UserControl>

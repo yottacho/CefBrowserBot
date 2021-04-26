@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.6.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CefBrowserBot", "CefBrowserBot\CefBrowserBot.csproj", "{1A3BED4D-4FE1-4864-BFA6-6BC01B1792EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B5E6B50-7294-4FFD-80B8-65A4DAB9BA15}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A3BED4D-4FE1-4864-BFA6-6BC01B1792EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1A3BED4D-4FE1-4864-BFA6-6BC01B1792EB}.Debug|x64.Build.0 = Debug|Any CPU
+		{1A3BED4D-4FE1-4864-BFA6-6BC01B1792EB}.Release|x64.ActiveCfg = Release|Any CPU
+		{1A3BED4D-4FE1-4864-BFA6-6BC01B1792EB}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {50D08942-5D07-4958-80A9-337C95ECDD80}
+	EndGlobalSection
+EndGlobal
