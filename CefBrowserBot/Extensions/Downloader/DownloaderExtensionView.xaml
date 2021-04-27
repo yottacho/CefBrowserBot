@@ -1,0 +1,75 @@
+﻿<UserControl
+    x:Class="CefBrowserBot.Extensions.Downloader.DownloaderExtensionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CefBrowserBot.Extensions.Downloader"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{Binding DownloaderExtension}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <!--
+        Active: On/Off button
+        Site: mana
+        Auto Download: On/Off
+        Move Next: On/Off
+        Parse: Ok/None
+        History ...
+    -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0"
+            Text="동작" />
+        <CheckBox
+            Grid.Row="0"
+            Grid.Column="1"
+            IsChecked="{Binding Enabled, Mode=TwoWay}" />
+
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="0"
+            Text="사이트" />
+
+        <TextBlock
+            Grid.Row="1"
+            Grid.Column="1"
+            Text="{Binding SiteType}" />
+
+        <TextBlock
+            Grid.Row="2"
+            Grid.Column="0"
+            Text="자동다운로드" />
+        <CheckBox
+            Grid.Row="2"
+            Grid.Column="1"
+            IsChecked="{Binding AutoDownload, Mode=TwoWay}" />
+
+        <TextBlock
+            Grid.Row="3"
+            Grid.Column="0"
+            Text="다음화이동" />
+        <CheckBox
+            Grid.Row="3"
+            Grid.Column="1"
+            IsChecked="{Binding MoveNext, Mode=TwoWay}" />
+
+        <Grid Grid.Row="4" Grid.ColumnSpan="2">
+            <TextBlock Text="임시" />
+        </Grid>
+
+    </Grid>
+</UserControl>
