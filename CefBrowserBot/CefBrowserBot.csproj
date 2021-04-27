@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
-    <FileVersion>0.9.0.0</FileVersion>
+    <FileVersion>0.11.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Version>0.9.0</Version>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>

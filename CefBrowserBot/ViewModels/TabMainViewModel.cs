@@ -114,10 +114,21 @@ namespace CefBrowserBot.ViewModels
             newTab.TabHeaderButtonCommand = CloseTabCommand;
             newTab.TabHeaderButtonParameter = newTab;
 
+            // 프로그램 크래시 대응
             //newTab.WebBrowser.Address = url;
             //newTab.WebBrowser.Load(url);
-            newTab.Url = url;
-            newTab.GoToPageCommand?.Execute(null);
+            DispatcherHelperService.BeginInvoke(() =>
+            {
+                if (newTab.WebBrowser.IsBrowserInitialized)
+                {
+                    newTab.WebBrowser.Load(url);
+                }
+                else
+                {
+                    newTab.Url = url;
+                    newTab.GoToPageCommand?.Execute(null);
+                }
+            });
 
             newTab.ViewContent = new TabContent() { DataContext = newTab };
 

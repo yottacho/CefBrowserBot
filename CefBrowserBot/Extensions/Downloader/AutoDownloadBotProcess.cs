@@ -74,6 +74,9 @@ namespace CefBrowserBot.Extensions.Downloader
 
             while (UrlList.Count > 0)
             {
+                // 부하조정: 탭이 한꺼번에 열리지 않도록
+                Thread.Sleep(3 * 1000);
+
                 if (TabList.Count < MaxOpenTab)
                 {
                     string url = UrlList[0];
@@ -105,8 +108,6 @@ namespace CefBrowserBot.Extensions.Downloader
 
                     UrlList.RemoveAt(0);
                 }
-
-                Thread.Sleep(3 * 1000);
             }
         }
 
