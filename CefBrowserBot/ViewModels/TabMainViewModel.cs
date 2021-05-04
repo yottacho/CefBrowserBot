@@ -25,7 +25,7 @@ namespace CefBrowserBot.ViewModels
         public int SelectedTabIndex
         {
             get { return _SelectedTabIndex; }
-            set 
+            set
             {
                 Debug.WriteLine($"TabMainViewModel.SelectedTabIndex: {TabListSource.Count}:{_SelectedTabIndex}->{value}.");
                 _SelectedTabIndex = value;
@@ -52,7 +52,7 @@ namespace CefBrowserBot.ViewModels
 
             AddNewTabCommand = new RelayCommand<object>(x =>
             {
-                OpenTab(x?.ToString());
+                OpenTab(x?.ToString(), true, true);
             });
 
             CloseTabCommand = new RelayCommand<object>(x =>
@@ -99,7 +99,7 @@ namespace CefBrowserBot.ViewModels
             };
         }
 
-        public TabContentViewModel OpenTab(string url)
+        public TabContentViewModel OpenTab(string url, bool addLast = false, bool changeFocusToNewTab = true)
         {
             if (url == null)
             {
@@ -131,9 +131,20 @@ namespace CefBrowserBot.ViewModels
             });
 
             newTab.ViewContent = new TabContent() { DataContext = newTab };
+            //TabListSource.Insert(TabListSource.Count - 1, newTab);
+            //SelectedTabIndex = TabListSource.Count - 2;
 
-            TabListSource.Insert(TabListSource.Count - 1, newTab);
-            SelectedTabIndex = TabListSource.Count - 2;
+            var nextTabIndex = SelectedTabIndex + 1;
+            if (nextTabIndex == TabListSource.Count)
+                nextTabIndex--;
+
+            if (addLast)
+                nextTabIndex = TabListSource.Count - 1;
+
+            TabListSource.Insert(nextTabIndex, newTab);
+
+            if (changeFocusToNewTab)
+                SelectedTabIndex = nextTabIndex;
 
             return newTab;
         }

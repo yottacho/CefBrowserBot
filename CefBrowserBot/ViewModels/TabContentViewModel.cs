@@ -72,7 +72,10 @@ namespace CefBrowserBot.ViewModels
             // browser event handler
             fChromiumWebBrowser.AddressChanged += (s, e) => { Url = e.NewValue.ToString(); };
             fChromiumWebBrowser.TitleChanged += (s, e) => { RaisePropertyChanged(nameof(Title)); RaisePropertyChanged(nameof(TabHeaderTitle)); };
-            //WebBrowser.StatusMessage += (s, e) => { StatusMessage = e.Value; RaisePropertyChanged(nameof(StatusMessage)); };
+
+            //fChromiumWebBrowser.StatusMessage += (s, e) => { StatusMessage = e.Value; };
+            fChromiumWebBrowser.FrameLoadStart += (s, e) => { if (e.Frame.IsMain) { StatusMessage = "Loading..."; } };
+            fChromiumWebBrowser.FrameLoadEnd += (s, e) => { if (e.Frame.IsMain) { StatusMessage = (e.HttpStatusCode == 200 ? "완료" : $"오류(HTTP:{e.HttpStatusCode})"); } };
 
             // button handler
             BackCommand = fChromiumWebBrowser.BackCommand;

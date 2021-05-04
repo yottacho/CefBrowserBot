@@ -9,67 +9,210 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <!--
-        Active: On/Off button
-        Site: mana
-        Auto Download: On/Off
-        Move Next: On/Off
-        Parse: Ok/None
-        History ...
-    -->
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
 
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="0"
-            Text="동작" />
-        <CheckBox
-            Grid.Row="0"
-            Grid.Column="1"
-            IsChecked="{Binding Enabled, Mode=TwoWay}" />
+    <UserControl.Resources>
+        <Style x:Key="SliderCheckBox" TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" />
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <ControlTemplate.Resources>
+                            <Storyboard x:Key="OnChecking">
+                                <DoubleAnimationUsingKeyFrames
+                                    BeginTime="00:00:00"
+                                    Storyboard.TargetName="slider"
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
+                                    <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="25" />
+                                </DoubleAnimationUsingKeyFrames>
+                            </Storyboard>
+                            <Storyboard x:Key="OnUnchecking">
+                                <DoubleAnimationUsingKeyFrames
+                                    BeginTime="00:00:00"
+                                    Storyboard.TargetName="slider"
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)">
+                                    <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0" />
+                                </DoubleAnimationUsingKeyFrames>
+                                <ThicknessAnimationUsingKeyFrames
+                                    BeginTime="00:00:00"
+                                    Storyboard.TargetName="slider"
+                                    Storyboard.TargetProperty="(FrameworkElement.Margin)">
+                                    <SplineThicknessKeyFrame KeyTime="00:00:00.3000000" Value="1,1,1,1" />
+                                </ThicknessAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </ControlTemplate.Resources>
 
-        <TextBlock
-            Grid.Row="1"
-            Grid.Column="0"
-            Text="사이트" />
+                        <DockPanel x:Name="dockPanel">
+                            <ContentPresenter
+                                VerticalAlignment="Center"
+                                Content="{TemplateBinding Content}"
+                                ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            <Grid
+                                Width="50"
+                                Margin="5,5,0,5"
+                                Background="#FFC0CCD9">
+                                <TextBlock
+                                    Margin="0,0,3,0"
+                                    HorizontalAlignment="Right"
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Text="Off"
+                                    TextWrapping="Wrap" />
+                                <TextBlock
+                                    Margin="2,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Text="On"
+                                    TextWrapping="Wrap" />
+                                <Border
+                                    x:Name="slider"
+                                    Width="23"
+                                    Margin="1,1,1,1"
+                                    HorizontalAlignment="Left"
+                                    BorderThickness="1,1,1,1"
+                                    CornerRadius="3,3,3,3"
+                                    RenderTransformOrigin="0.5,0.5">
+                                    <Border.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                                            <SkewTransform AngleX="0" AngleY="0" />
+                                            <RotateTransform Angle="0" />
+                                            <TranslateTransform X="0" Y="0" />
+                                        </TransformGroup>
+                                    </Border.RenderTransform>
+                                    <Border.BorderBrush>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Offset="0" Color="#FFFFFFFF" />
+                                            <GradientStop Offset="1" Color="#FF4490FF" />
+                                        </LinearGradientBrush>
+                                    </Border.BorderBrush>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                            <GradientStop Offset="1" Color="#FF8AB4FF" />
+                                            <GradientStop Offset="0" Color="#FFD1E2FF" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
+                            </Grid>
+                        </DockPanel>
 
-        <TextBlock
-            Grid.Row="1"
-            Grid.Column="1"
-            Text="{Binding SiteType}" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard x:Name="OnUnchecking_BeginStoryboard" Storyboard="{StaticResource OnUnchecking}" />
+                                </Trigger.ExitActions>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard x:Name="OnChecking_BeginStoryboard" Storyboard="{StaticResource OnChecking}" />
+                                </Trigger.EnterActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
-        <TextBlock
-            Grid.Row="2"
-            Grid.Column="0"
-            Text="자동다운로드" />
-        <CheckBox
-            Grid.Row="2"
-            Grid.Column="1"
-            IsChecked="{Binding AutoDownload, Mode=TwoWay}" />
+    <DockPanel>
+        <GroupBox DockPanel.Dock="Top">
+            <GroupBox.Header>
+                <CheckBox
+                    x:Name="MainEnabled"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    Content="다운로더"
+                    IsChecked="{Binding Enabled, Mode=TwoWay}"
+                    Style="{DynamicResource SliderCheckBox}" />
+            </GroupBox.Header>
 
-        <TextBlock
-            Grid.Row="3"
-            Grid.Column="0"
-            Text="다음화이동" />
-        <CheckBox
-            Grid.Row="3"
-            Grid.Column="1"
-            IsChecked="{Binding MoveNext, Mode=TwoWay}" />
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
 
-        <Grid Grid.Row="4" Grid.ColumnSpan="2">
-            <TextBlock Text="임시" />
-        </Grid>
+                <CheckBox
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    Content="자동 다운로드"
+                    IsChecked="{Binding AutoDownload, Mode=TwoWay}"
+                    Style="{DynamicResource SliderCheckBox}" />
+                <CheckBox
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    HorizontalAlignment="Left"
+                    Content="다음화 이동"
+                    IsChecked="{Binding MoveNext, Mode=TwoWay}"
+                    Style="{DynamicResource SliderCheckBox}" />
 
-    </Grid>
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Text="모듈" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    HorizontalAlignment="Left"
+                    Text="{Binding SiteType}" />
+            </Grid>
+        </GroupBox>
+
+        <DataGrid
+            Padding="3,0,0,0"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            ItemsSource="{Binding ActionLog}"
+            SelectionMode="Extended">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn
+                    Width="180"
+                    Header="제목"
+                    IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TitleView}">
+                                <TextBlock.ToolTip>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" />
+                                        <TextBlock Text="{Binding Url}" />
+                                    </StackPanel>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn
+                    Binding="{Binding FileName}"
+                    Header="이미지"
+                    IsReadOnly="True" />
+
+                <DataGridTemplateColumn Header="상태" IsReadOnly="True">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Status}">
+                                <TextBlock.ToolTip>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Message}" />
+                                    </StackPanel>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </UserControl>

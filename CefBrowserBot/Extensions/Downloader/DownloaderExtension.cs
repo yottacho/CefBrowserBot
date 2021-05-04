@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
@@ -52,7 +53,7 @@ namespace CefBrowserBot.Extensions.Downloader
         /// </summary>
         public bool MoveNext { get; set; }
 
-        public ObservableCollection<DownloadLog> ActionLog { get; set; }
+        public ObservableCollection<DownloadLog> ActionLog { get; protected set; }
         #endregion
 
         /// <summary>
@@ -60,17 +61,25 @@ namespace CefBrowserBot.Extensions.Downloader
         /// </summary>
         public DownloaderExtension()
         {
-            ActionLog = new ObservableCollection<DownloadLog>();
+            ActionLog = DownloadHistory.Default.ActionLog;
+            Random random = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
 
-            //int rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue)).Next();
-            //ScriptObjectName = $"Js_{rnd}_O";
-            ScriptObjectName = $"Js__O";
+            var len = random.Next(5, 8);
+            byte[] rnd = new byte[len];
+            random.NextBytes(rnd);
+            var varnm = System.Convert.ToBase64String(rnd).Replace("=", "x").Replace("+", "x").Replace("/", "x");
+
+#if DEBUG
+            ScriptObjectName = $"JsDownloader";
+#else
+            ScriptObjectName = $"J{varnm}";
+#endif
             fScriptObject = new BrowserJavascriptInterface(this);
 
-            // 기본값 셋팅 (나중에 개선)
+            // 기본값
             Enabled = true;
-            AutoDownload = true;
-            MoveNext = true;
+            //AutoDownload = true;
+            //MoveNext = true;
         }
 
         #region IExBrowserExtension 구현
@@ -118,7 +127,7 @@ namespace CefBrowserBot.Extensions.Downloader
                 popupWindow.WindowStyle = WindowStyle.ToolWindow;
                 popupWindow.Title = "다운로드";
 
-                popupWindow.Width = 300;
+                popupWindow.Width = 320;
                 popupWindow.Height = 250;
 
                 popupWindow.Top = Application.Current.MainWindow.Top + Application.Current.MainWindow.Height - popupWindow.Height - 90;
@@ -182,15 +191,28 @@ namespace CefBrowserBot.Extensions.Downloader
                     // register object
                     StringBuilder objectRegistScript = new StringBuilder();
                     objectRegistScript.Append("CefSharp.BindObjectAsync(\"" + ScriptObjectName + "\").then(async function () {\r\n");
+                    objectRegistScript.Append("console.log(\"CefBrowserBot JSObject [" + ScriptObjectName + "] registered.\");\r\n");
                     objectRegistScript.Append("var script = await " + ScriptObjectName + ".getExtensionScript();\r\n");
-                    objectRegistScript.Append("setTimeout(script, 1);");
-                    objectRegistScript.Append("\r\n});\r\n");
+                    objectRegistScript.Append("setTimeout(script, 1);\r\n");
+                    objectRegistScript.Append("});\r\n");
+                    // setTimeout(function() { ... }, 1); 검토
+                    // (function () { ... })();
+                    // new Function(jsstring)();
+                    // (new Function('return ' + jsstring))();
 
                     frame.ExecuteJavaScriptAsync(objectRegistScript.ToString());
+
+                    ViewModel.StatusMessage = $"{ViewModel.StatusMessage}>다운로더:{(AutoDownload ? "ON" : "OFF")}";
                 }
             }
 
             RaisePropertyChanged(nameof(SiteType));
+        }
+
+        public void RaiseActionLogChanged()
+        {
+            RaisePropertyChanged(nameof(ActionLog));
+            //RaisePropertyChanged<ObservableCollection<DownloadLog>>(propertyName: nameof(ActionLog), oldValue: default, newValue: default, broadcast: true);
         }
 
         public void Dispose()
@@ -198,24 +220,4 @@ namespace CefBrowserBot.Extensions.Downloader
         }
     }
 
-    public class DownloadLog
-    {
-        public string Title { get; set; }
-        public string Url { get; set; }
-        public string Agent { get; set; }
-
-        public string FileName { get; set; }
-        public string FullPathName { get; set; }
-        public string SourceUrl { get; set; }
-        public DownloadLogStatus Status { get; set; }
-        public string Message { get; set; }
-    }
-
-    public enum DownloadLogStatus
-    {
-        Ready,
-        Download,
-        Ok,
-        Error
-    }
 }

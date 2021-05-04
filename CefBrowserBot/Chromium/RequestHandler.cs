@@ -25,7 +25,10 @@ namespace CefBrowserBot.Chromium
             Debug.WriteLine("IRequestHandler.OnOpenUrlFromTab:");
 
             // 새 탭으로 열기 => 탭으로 처리
-            if (targetDisposition == WindowOpenDisposition.NewBackgroundTab)
+            if (targetDisposition == WindowOpenDisposition.NewBackgroundTab ||
+                targetDisposition == WindowOpenDisposition.NewForegroundTab ||
+                targetDisposition == WindowOpenDisposition.NewPopup ||
+                targetDisposition == WindowOpenDisposition.NewWindow)
             {
                 OpenNewTab?.Invoke(targetUrl, new EventArgs());
                 return true;

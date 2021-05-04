@@ -113,9 +113,15 @@ namespace CefBrowserBot.Extensions.Downloader
                     Message = ""
                 };
 
-                while (Settings.ActionLog.Count > 999)
-                    Settings.ActionLog.RemoveAt(0);
-                Settings.ActionLog.Add(log);
+
+                DispatcherHelperService.Invoke(() => 
+                {
+                    while (DownloadHistory.Default.ActionLog.Count > 999)
+                        DownloadHistory.Default.ActionLog.RemoveAt(0);
+                    DownloadHistory.Default.ActionLog.Add(log);
+
+                    Settings.RaiseActionLogChanged(); 
+                });
 
                 current.Add(log);
                 index++;
@@ -154,7 +160,7 @@ namespace CefBrowserBot.Extensions.Downloader
                 writer.WriteLine("------------------------------------------------------------");
                 writer.WriteLine($"Url : {referer}");
                 writer.WriteLine("");
-                foreach(var item in current)
+                foreach (var item in current)
                 {
                     writer.WriteLine($"{item.SourceUrl} => {item.FileName}: {item.Status} {item.Message}");
                 }
@@ -185,6 +191,7 @@ namespace CefBrowserBot.Extensions.Downloader
         private async Task DownloadImage(DownloadLog item)
         {
             item.Status = DownloadLogStatus.Download;
+            DispatcherHelperService.Invoke(() => { Settings.RaiseActionLogChanged(); });
 
             using (WebClient wc = new WebClient())
             {
@@ -200,7 +207,7 @@ namespace CefBrowserBot.Extensions.Downloader
                 Debug.WriteLine($"BrowserJavascriptInterface.DownloadImage: {item.SourceUrl} => {item.FullPathName}.");
 
                 bool downloadFinished = false;
-                var timer = Task.Run(() => 
+                var timer = Task.Run(() =>
                 {
                     // 60 sec = 60,000 msec
                     for (int i = 0; i < 600; i++)
@@ -238,7 +245,12 @@ namespace CefBrowserBot.Extensions.Downloader
             }
 
             if (item.Status != DownloadLogStatus.Error)
+            {
                 item.Status = DownloadLogStatus.Ok;
+                item.Message = "Success";
+            }
+
+            DispatcherHelperService.Invoke(() => { Settings.RaiseActionLogChanged(); });
         }
 
         /// <summary>
@@ -286,7 +298,11 @@ namespace CefBrowserBot.Extensions.Downloader
             }
         }
 
-        // 봇 프로세스 시작
+        /// <summary>
+        /// 봇 프로세스 시작
+        /// </summary>
+        /// <param name="urls"></param>
+        /// <param name="siteKey"></param>
         public void StartDownloadBot(object urls, string siteKey)
         {
             List<object> UrlList = urls as List<object>;
@@ -306,18 +322,21 @@ namespace CefBrowserBot.Extensions.Downloader
                     continue;
 
                 Debug.WriteLine($"BrowserJavascriptInterface.StartDownloadBot: Add {sublist[0]}");
-                AutoDownloadBotProcess.Default.UrlList.Add(sublist[0].ToString());
+                AutoBotBatchRunner.Default.UrlList.Add(sublist[0].ToString());
             }
 
-            AutoDownloadBotProcess.Default.StartProcess(siteKey);
+            AutoBotBatchRunner.Default.StartProcess(siteKey);
         }
 
-        // 봇 프로세스 종료
+        /// <summary>
+        /// 봇 프로세스 항목 종료시마다 처리
+        /// </summary>
+        /// <param name="url"></param>
         public void DownloadBotTabEnd(string url)
         {
             Debug.WriteLine($"BrowserJavascriptInterface.DownloadBotTabEnd: {url}");
             // url에 해당하는 tab 닫고 다음 처리 시작
-            AutoDownloadBotProcess.Default.BotFinished(url);
+            AutoBotBatchRunner.Default.BotFinished(url);
         }
 
     }
