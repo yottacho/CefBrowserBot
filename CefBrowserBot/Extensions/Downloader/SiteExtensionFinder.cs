@@ -13,8 +13,8 @@ namespace CefBrowserBot.Extensions.Downloader
         {
             string[] ExtensionPaths =
             {
-                // ConfigManager.Default.ApplicationStoragePath/Extensions/Downloader/Site/**/manifest.json
-                Path.Combine(ConfigManager.Default.ApplicationStoragePath, @"Extensions", @"Downloader", @"Site")
+                // ConfigManager.Default.ApplicationStoragePath/Extensions/Downloader/**/manifest.json
+                Path.Combine(ConfigManager.Default.ApplicationStoragePath, @"Extensions", @"Downloader")
             };
 
             List<SiteExtensionInfo> list = new List<SiteExtensionInfo>();

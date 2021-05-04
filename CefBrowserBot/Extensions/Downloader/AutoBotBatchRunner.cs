@@ -2,24 +2,25 @@
 using CefBrowserBot.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 
 namespace CefBrowserBot.Extensions.Downloader
 {
-    class AutoDownloadBotProcess
+    class AutoBotBatchRunner
     {
-        public static AutoDownloadBotProcess Default
+        public static AutoBotBatchRunner Default
         {
             get
             {
                 if (fDefault == default)
-                    fDefault = new AutoDownloadBotProcess();
+                    fDefault = new AutoBotBatchRunner();
                 return fDefault;
             }
         }
-        static AutoDownloadBotProcess fDefault;
+        static AutoBotBatchRunner fDefault;
 
         const int MaxOpenTab = 3;
 
@@ -29,7 +30,7 @@ namespace CefBrowserBot.Extensions.Downloader
         private Thread thread;
         private string SiteKey;
 
-        protected AutoDownloadBotProcess()
+        protected AutoBotBatchRunner()
         {
             TabList = new SynchronizedCollection<TabContentViewModel>();
             UrlList = new SynchronizedCollection<string>();
@@ -65,7 +66,6 @@ namespace CefBrowserBot.Extensions.Downloader
             }
         }
 
-
         private void Run()
         {
             var Locator = Application.Current.TryFindResource("Locator") as ViewModelLocator;
@@ -75,7 +75,7 @@ namespace CefBrowserBot.Extensions.Downloader
             while (UrlList.Count > 0)
             {
                 // 부하조정: 탭이 한꺼번에 열리지 않도록
-                Thread.Sleep(3 * 1000);
+                Thread.Sleep(2 * 1000);
 
                 if (TabList.Count < MaxOpenTab)
                 {
@@ -95,10 +95,20 @@ namespace CefBrowserBot.Extensions.Downloader
                         var vm = TabMainViewModel.OpenTab(@"about:blank");
                         TabList.Add(vm);
 
-                        //vm.Extensions =
+                        // Extension 활성화
+                        foreach (var item in vm.Extensions)
+                        {
+                            var ext = item as DownloaderExtension;
+                            if (ext != null)
+                            {
+                                ext.Enabled = true;
+                                ext.AutoDownload = true;
+                                ext.MoveNext = true;
+                            }
+                        }
+
                         //vm.Closed += (s, e) => { };
 
-                        //vm.WebBrowser.Address = url;
                         vm.Url = url;
                         vm.GoToPageCommand?.Execute(null);
 

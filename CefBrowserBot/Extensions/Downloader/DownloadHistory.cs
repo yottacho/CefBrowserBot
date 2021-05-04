@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 
@@ -35,11 +36,14 @@ namespace CefBrowserBot.Extensions.Downloader
 
         public SynchronizedCollection<DownloadedInfo> Data { get; protected set; }
 
+        public ObservableCollection<DownloadLog> ActionLog { get; protected set; }
+
         protected DownloadHistory()
         {
             lock (lockThis)
             {
                 Data = new SynchronizedCollection<DownloadedInfo>();
+                ActionLog = new ObservableCollection<DownloadLog>();
                 Load();
             }
         }
@@ -64,15 +68,14 @@ namespace CefBrowserBot.Extensions.Downloader
 
         public void Save()
         {
+            while (Data.Count > 5000)
+            {
+                Data.RemoveAt(0);
+            }
+
             lock (lockThis)
             {
-                while (Data.Count > 5000)
-                {
-                    Data.RemoveAt(0);
-                }
-
                 string json = JsonConvert.SerializeObject(Data);
-
                 File.WriteAllText(JsonFilePathName, json, Encoding.UTF8);
             }
         }
@@ -85,5 +88,37 @@ namespace CefBrowserBot.Extensions.Downloader
         public string Site { get; set; }
         public string Title { get; set; }
         public string DateTime { get; set; }
+    }
+
+    public class DownloadLog
+    {
+        public string Title { get; set; }
+        public string Url { get; set; }
+        public string Agent { get; set; }
+
+        public string FileName { get; set; }
+        public string FullPathName { get; set; }
+        public string SourceUrl { get; set; }
+        public DownloadLogStatus Status { get; set; }
+        public string Message { get; set; }
+
+        public string TitleView
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Title) && Title.Length > 20)
+                    return Title.Substring(0, 20);
+                return Title;
+            }
+            private set { }
+        }
+    }
+
+    public enum DownloadLogStatus
+    {
+        Ready,
+        Download,
+        Ok,
+        Error
     }
 }

@@ -42,7 +42,7 @@ namespace CefBrowserBot.Chromium
             }
 
             var Locator = Application.Current.TryFindResource("Locator") as ViewModelLocator;
-            DispatcherHelperService.Invoke(delegate { Locator.TabMainViewModel.AddNewTabCommand.Execute(url); });
+            DispatcherHelperService.Invoke(delegate { Locator.TabMainViewModel.OpenTab(url); });
         }
     }
 }
