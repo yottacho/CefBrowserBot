@@ -159,6 +159,7 @@ namespace CefBrowserBot.Extensions.AutoReloader
                     {
                         try
                         {
+                            ViewModel.WebBrowser.Stop();
                             ViewModel.WebBrowser.Reload();
                         }
                         catch (Exception) { }
