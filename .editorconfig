@@ -1,0 +1,15 @@
+# .editorconfig에 대해 자세히 알아보려면 다음을 참조하세요. https://aka.ms/editorconfigdocs
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+indent_style = space
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+
+# Xml files
+[*.xml]
+indent_size = 2

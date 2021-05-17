@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -13,6 +14,7 @@ namespace CefBrowserBot.ViewModels
 
         public ICommand SaveCommand { get; protected set; }
         public ICommand CloseCommand { get; protected set; }
+        public ICommand OpenExtensionsFolderCommand { get; protected set; }
 
         public string ApplicationStoragePath { get; protected set; }
 
@@ -24,6 +26,8 @@ namespace CefBrowserBot.ViewModels
 
         public string ExtensionsUpdateServer { get; set; }
 
+        public string ExtensionsLocalPath { get; set; }
+
         public SettingsDialogWindowViewModel()
         {
             ApplicationStoragePath = ConfigManager.Default.ApplicationStoragePath;
@@ -32,6 +36,8 @@ namespace CefBrowserBot.ViewModels
             DownloadDirectory = ConfigManager.Default.Config.DownloadDirectory;
             UpdateServer = ConfigManager.Default.Config.UpdateServer;
             ExtensionsUpdateServer = ConfigManager.Default.Config.ExtensionsUpdateServer;
+
+            ExtensionsLocalPath = Path.Combine(ConfigManager.Default.ApplicationStoragePath, "Extensions");
 
             SaveCommand = new RelayCommand(() => Save());
             CloseCommand = new RelayCommand<Window>(window =>
@@ -55,6 +61,14 @@ namespace CefBrowserBot.ViewModels
                 CloseWindowCommand.Execute(window);
             });
             CloseWindowCommand = new RelayCommand<Window>(window => window?.Close());
+
+            OpenExtensionsFolderCommand = new RelayCommand(() =>
+            {
+                // open explorer > ExtensionsLocalPath
+                ProcessStartInfo psi = new ProcessStartInfo(ExtensionsLocalPath);
+                psi.UseShellExecute = true;
+                Process.Start(psi);
+            });
         }
 
         private void Save()
