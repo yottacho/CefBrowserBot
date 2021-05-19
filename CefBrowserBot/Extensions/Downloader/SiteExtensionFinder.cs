@@ -1,4 +1,4 @@
-﻿using CefBrowserBot.Services;
+using CefBrowserBot.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,6 +25,14 @@ namespace CefBrowserBot.Extensions.Downloader
                 {
                     var info = GetManifestInfo(new DirectoryInfo(searchPath), url);
                     list.AddRange(info);
+                }
+                else
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(searchPath);
+                    }
+                    catch (Exception) { }
                 }
             }
 

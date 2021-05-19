@@ -1,5 +1,6 @@
-﻿using CefBrowserBot.Services;
+using CefBrowserBot.Services;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -71,8 +72,7 @@ namespace CefBrowserBot.Extensions.Downloader
 
             string downloadsPath = ConfigManager.Default.Config.DownloadDirectory;
 
-            string titleFullName = $"{TitleName[0].ToString().Trim()} {TitleName[1].ToString().Trim()}".Trim();
-            string targetPath = Path.Combine(downloadsPath, TitleName[0].ToString().Trim(), titleFullName);
+            string targetPath = Path.Combine(downloadsPath, TitleName[0].ToString().Trim(), TitleName[1].ToString().Trim());
             Debug.WriteLine($"BrowserJavascriptInterface.DownloadImages: Download dir [{targetPath}]");
 
             DirectoryInfo dir = new DirectoryInfo(targetPath);
@@ -84,26 +84,13 @@ namespace CefBrowserBot.Extensions.Downloader
             foreach (var imageUrl in ImageList)
             {
                 string imageSource = imageUrl.ToString();
-                string ext = "jpg";
-                if (imageSource.ToLower().Contains(".jpg") || imageSource.ToLower().Contains(".jpeg"))
-                    ext = "jpg";
-                else if (imageSource.ToLower().Contains(".gif"))
-                    ext = "gif";
-                else if (imageSource.ToLower().Contains(".png"))
-                    ext = "png";
-                else if (imageSource.ToLower().Contains(".bmp"))
-                    ext = "bmp";
-                else if (imageSource.ToLower().Contains(".tif") || imageSource.ToLower().Contains(".tiff"))
-                    ext = "tif";
-                else if (imageSource.ToLower().Contains(".webp"))
-                    ext = "webp";
 
-                string fileCount = string.Format("{0:d3}.{1}", index, ext);
+                string fileCount = string.Format("{0:d3}", index);
                 string fileName = Path.Combine(targetPath, fileCount);
 
                 DownloadLog log = new DownloadLog()
                 {
-                    Title = titleFullName,
+                    Title = $"{TitleName[0].ToString().Trim()} {TitleName[1].ToString().Trim()}".Trim(),
                     Url = referer,
                     Agent = userAgent,
                     FileName = fileCount,
@@ -113,17 +100,46 @@ namespace CefBrowserBot.Extensions.Downloader
                     Message = ""
                 };
 
+                // data:image/png;base64,<data>
+                if (imageSource.StartsWith("data:"))
+                {
+                    // drop "data:" flag
+                    imageSource = imageSource.Substring(5);
+                    var i1 = imageSource.IndexOf(";") + 1;
+                    var i2 = imageSource.IndexOf(",", i1);
 
-                DispatcherHelperService.Invoke(() => 
+                    var mime = imageSource.Substring(0, i1 - 1);
+                    var encode = imageSource.Substring(i1, i2 - i1);    // base64 only
+                    var data = imageSource.Substring(i2 + 1);
+
+                    byte[] raw = Convert.FromBase64String(data);
+
+                    // image/gif, image/png, image/jpeg, image/bmp, image/webp
+                    string extension = FileHeader.GetImageExtension(raw) ?? mime.Replace("/", "_");
+
+                    log.FileName += extension;
+                    log.FullPathName += extension;
+                    log.SourceUrl = mime + ";" + encode;
+
+                    Debug.WriteLine($"BrowserJavascriptInterface.DownloadImages: (direct) {log.FullPathName}.");
+
+                    File.WriteAllBytes(log.FullPathName, raw);
+                    log.Status = DownloadLogStatus.Ok;
+                    log.Message = "Success";
+                }
+                else
+                {
+                    current.Add(log);
+                }
+
+                DispatcherHelperService.Invoke(() =>
                 {
                     while (DownloadHistory.Default.ActionLog.Count > 999)
                         DownloadHistory.Default.ActionLog.RemoveAt(0);
                     DownloadHistory.Default.ActionLog.Add(log);
 
-                    Settings.RaiseActionLogChanged(); 
+                    Settings.RaiseActionLogChanged();
                 });
-
-                current.Add(log);
                 index++;
             }
 
@@ -204,7 +220,7 @@ namespace CefBrowserBot.Extensions.Downloader
                 wc.Headers["Sec-Fetch-Site"] = "cross-site";
                 wc.Headers["User-Agent"] = item.Agent;
 
-                Debug.WriteLine($"BrowserJavascriptInterface.DownloadImage: {item.SourceUrl} => {item.FullPathName}.");
+                Debug.WriteLine($"BrowserJavascriptInterface.DownloadImage: (WebClient) {item.SourceUrl} => {item.FullPathName}.");
 
                 bool downloadFinished = false;
                 var timer = Task.Run(() =>
@@ -229,6 +245,28 @@ namespace CefBrowserBot.Extensions.Downloader
                 {
                     await wc.DownloadFileTaskAsync(new Uri(item.SourceUrl), item.FullPathName);
                     downloadFinished = true;
+
+                    // 확장자 처리
+                    string extension;
+                    using (var fs = File.OpenRead(item.FullPathName))
+                    {
+                        int len = (int)Math.Min(fs.Length, 50);
+                        byte[] buf = new byte[len];
+                        fs.Read(buf, 0, len);
+                        fs.Close();
+
+                        extension = FileHeader.GetImageExtension(buf);
+                    }
+
+                    if (extension != null)
+                    {
+                        if (File.Exists(item.FullPathName + extension))
+                            File.Delete(item.FullPathName + extension);
+                        File.Move(item.FullPathName, item.FullPathName + extension);
+
+                        item.FileName += extension;
+                        item.FullPathName += extension;
+                    }
 
                     await timer;
                 }

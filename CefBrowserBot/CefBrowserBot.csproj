@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -6,14 +6,14 @@
     <UseWPF>true</UseWPF>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <SelfContained Condition="'$(SelfContained)' == ''">false</SelfContained>
-    <FileVersion>0.13.0.0</FileVersion>
+    <FileVersion>0.14.0.0</FileVersion>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <Version>0.13.0</Version>
+    <Version>0.14.0</Version>
     <PackageLicenseExpression>MIT License</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CefSharp.Wpf.NETCore" Version="89.0.170" />
+    <PackageReference Include="CefSharp.Wpf.NETCore" Version="90.6.50" />
     <PackageReference Include="FontAwesome5" Version="2.1.0" />
     <PackageReference Include="MvvmLightLibsStd10" Version="5.4.1.1" />
     <PackageReference Include="MvvmLightStd10" Version="5.4.1.2" />
