@@ -64,6 +64,10 @@ namespace CefBrowserBot.ViewModels
                     return;
                 }
 
+                // left tab focus
+                if (TabListSource[SelectedTabIndex] == tab)
+                    SelectedTabIndex--;
+
                 TabListSource.Remove(tab);
 
                 if (x.GetType().GetInterface("GalaSoft.MvvmLight.ICleanup") != null)
