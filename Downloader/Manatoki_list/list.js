@@ -7,8 +7,8 @@ async function get_title_list() {
 
     console.log("get_title_list()");
 
-    //var titles_details = document.getElementsByClassName("wr-subject");
-    //await check_title(titles_details, dummyinfo);
+    var titles_details = document.getElementsByClassName("wr-subject");
+    await check_title(titles_details, dummyinfo);
 
     var titles = document.getElementsByClassName("post-subject");
     await check_title(titles, procinfo);
@@ -78,12 +78,14 @@ async function auto_download_list() {
         }
     }
 
-    get_title_list();
     setInterval("get_title_list()", 10 * 1000);
 
     // 업데이트에서만 동작
     if (location.pathname == "/page/update" || location.pathname == "/bbs/page.php") {
         auto_download_list();
+    }
+    else {
+        get_title_list().then(function(o) { console.log(">" + o.length); });
     }
 
 }
