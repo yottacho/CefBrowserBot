@@ -78,6 +78,7 @@ function image_walk(node, images_list) {
         }
 
         if (node[i].tagName == "IMG") {
+            var f = false;
             for (j = 0; j < node[i].attributes.length; j++) {
                 if (node[i].attributes[j].name.startsWith("data-")) {
                     //console.log("IMG> " + node[i].attributes[j].name + " = " + node[i].attributes[j].value);
@@ -101,7 +102,14 @@ function image_walk(node, images_list) {
                     console.log(image_data);
                     //images_list.push(image_data);
                     */
+                    f = true;
+                    break;
                 }
+            }
+
+            if (f != true) {
+                var u = new URL(node[i].src, location.href);
+                images_list.push(u.href);
             }
         }
 

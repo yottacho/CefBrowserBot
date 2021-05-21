@@ -7,19 +7,20 @@ async function get_title_list() {
 
     console.log("get_title_list()");
 
-    var titles = document.getElementsByClassName("post-subject");
-    check_title(titles, procinfo);
-
     var titles_details = document.getElementsByClassName("wr-subject");
-    check_title(titles_details, dummyinfo);
+    await check_title(titles_details, dummyinfo);
+
+    var titles = document.getElementsByClassName("post-subject");
+    await check_title(titles, procinfo);
 
     console.log("count = " + procinfo.length);
     return procinfo;
 }
 
-async function check_title(titles, procinfo) {
-    for (i = 0; i < titles.length; i++) {
-        var linkTag = titles[i].getElementsByTagName("a");
+async function check_title(title_list, proc_info) {
+    for (i = 0; i < title_list.length; i++) {
+
+        var linkTag = title_list[i].getElementsByTagName("a");
         if (linkTag.length == 0)
             continue;
 
@@ -32,11 +33,16 @@ async function check_title(titles, procinfo) {
             text = text.substring(0, text.indexOf("\r"));
 
         var registered = await $Downloader$.getRegisteredUrl(href, "manatoki");
-        if (registered == true && typeof titles[i] != "undefined") {
-            titles[i].style.backgroundColor = "rgba(255, 255, 100, 0.7)";
+        if (registered == true) {
+            try
+            {
+                title_list[i].style.backgroundColor = "rgba(255, 255, 100, 0.7)";
+            }
+            catch (ex) { }
         }
         else {
-            procinfo.push([href, text]);
+            //console.log("next> " + href);
+            proc_info.push([href, text]);
         }
     }
 }
