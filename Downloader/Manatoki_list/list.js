@@ -7,8 +7,8 @@ async function get_title_list() {
 
     console.log("get_title_list()");
 
-    var titles_details = document.getElementsByClassName("wr-subject");
-    await check_title(titles_details, dummyinfo);
+    //var titles_details = document.getElementsByClassName("wr-subject");
+    //await check_title(titles_details, dummyinfo);
 
     var titles = document.getElementsByClassName("post-subject");
     await check_title(titles, procinfo);
@@ -52,15 +52,17 @@ async function auto_download_list() {
     var procinfo = await get_title_list();
     console.log("자동 다운로드: " + autoDownloadFlag + ", Count: " + procinfo.length);
 
-    if (autoDownloadFlag == true && procinfo.length > 0) {
+    if (autoDownloadFlag == true) {
         // 마지막으로 다운로드한 url을 기억
         window.sessionStorage.setItem("autoDownload", "y");
         window.sessionStorage.setItem("autoDownloadUrl", location.href);
-
-        await $Downloader$.startDownloadBot(procinfo, "manatoki");
     }
     else {
         window.sessionStorage.setItem("autoDownload", "n");
+    }
+
+    if (autoDownloadFlag == true && procinfo.length > 0) {
+        await $Downloader$.startDownloadBot(procinfo, "manatoki");
     }
 }
 
