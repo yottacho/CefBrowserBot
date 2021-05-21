@@ -1,2 +1,3 @@
 # CefBrowserBot
-Bot based Chromium browser
+
+Bot based on Chromium web browser extension scripts.
