@@ -1,4 +1,4 @@
-console.log("---------- naver_blog_post ----------");
+console.log("---------- tistory_blog ----------");
 
 // run keyboard event
 window.onkeydown = function (event) {
@@ -57,27 +57,16 @@ function get_images_list() {
     var images_url_list = [];
     var i;
 
-    get_images_list_class(document.getElementsByClassName("se-image-resource"), images_url_list);   // blog se editor
-    get_images_list_class(document.getElementsByClassName("se_mediaImage"), images_url_list);       // old se editor
-    get_images_list_class(document.getElementsByClassName("_photoImage"), images_url_list);         // old blog
-
     if (images_url_list.length == 0) {
-        // _postView 아래의 img 태그
-        var post_view = document.getElementsByClassName("_postView");
+        var post_view = document.getElementsByClassName("entry-content");
         if (post_view.length > 0) {
             var post_imgs = post_view[0].getElementsByTagName("img");
             for (i = 0; i < post_imgs.length; i++) {
-                if (post_imgs[i].hasAttribute("largesrc")) {
+                if (post_imgs[i].hasAttribute("srcset")) {
                     var u = new URL(post_imgs[i].src, location.href);
 
-                    if (u.hostname == "postfiles.pstatic.net" || u.hostname == "blogthumb.pstatic.net" ||
-                        u.hostname == "mblogthumb-phinf.pstatic.net") {
-                        // blogfiles.naver.net => blogfiles.pstatic.net
-                        u.hostname = "blogfiles.pstatic.net";
-                    }
-
                     // 이미지 주소(파라마터 없음)
-                    var img_url = u.origin + u.pathname;
+                    var img_url = u.href;
 
                     console.log(img_url);
                     images_url_list.push(img_url);
@@ -90,53 +79,15 @@ function get_images_list() {
     return images_url_list;
 }
 
-function get_images_list_class(clsName, images_url_list) {
-
-    for (i = 0; i < clsName.length; i++) {
-        if (clsName[i].tagName == "IMG") {
-            var u = new URL(clsName[i].src, location.href);
-
-            if (u.hostname == "postfiles.pstatic.net" || u.hostname == "blogthumb.pstatic.net" ||
-                u.hostname == "mblogthumb-phinf.pstatic.net") {
-                // blogfiles.naver.net => blogfiles.pstatic.net
-                u.hostname = "blogfiles.pstatic.net";
-            }
-
-            // 이미지 주소(파라마터 없음)
-            var img_url = u.origin + u.pathname;
-
-            console.log(img_url);
-            images_url_list.push(img_url);
-        }
-    }
-
-}
-
 /* ***************************************************************
  * 제목 추출
  * *************************************************************** */
-
-var bbs_category = [
-    [ "blog.naver.com", "네이버블로그" ],
-    [ "m.blog.naver.com", "네이버블로그" ],
-    [ "post.naver.com", "네이버포스트" ],
-    [ "m.post.naver.com", "네이버포스트" ],
-    [ "m.bboom.naver.com", "네이버뿜" ],
-];
 
 function get_title() {
     var i;
     var title_info = ["", ""];
     var title_name = "";
     var user_name = "";
-
-    var p = location.hostname;
-    for (i = 0; i < bbs_category.length; i++) {
-        if (p.startsWith(bbs_category[i][0])) {
-            title_info[0] = bbs_category[i][1];
-            break;
-        }
-    }
 
     var meta = document.getElementsByTagName("meta");
     for (i = 0; i < meta.length; i++) {
@@ -145,14 +96,20 @@ function get_title() {
             if (propertyName == "og:title") {
                 title_name = meta[i].getAttribute("content");
             }
-            // "og:author": post, "naverblog:nickname": blog
-            if (propertyName == "og:author" || propertyName == "naverblog:nickname") {
+            if (propertyName == "og:site_name") {
                 user_name = meta[i].getAttribute("content");
             }
         }
     }
 
     title_name = title_name.trim();
+    if (title_name == "") {
+        var hdr = document.getElementsByTagName("title");
+        if (hdr.length > 0) {
+            title_name = hdr[0].innerText.trim();
+        }
+    }
+
     if (user_name != "") {
         title_name = "(" + user_name + ") " + title_name;
     }
@@ -187,7 +144,7 @@ function get_title() {
     title_info[1] = title_name;
 
     if (title_info[0] == "") {
-        title_info[0] = "네이버";
+        title_info[0] = "티스토리";
     }
 
     console.log("get_title() **최종** 게시판명: [" + title_info[0] + "], 제목: [" + title_info[1] + "]");
@@ -197,12 +154,6 @@ function get_title() {
 
 // onload
 {
-    // naver blog
-    var moreLink = document.getElementsByClassName("_getSummaryContent");
-    if (moreLink.length > 0) {
-        moreLink[0].click();
-    }
-
     show_info_bar();
 }
 
@@ -216,7 +167,7 @@ function show_info_bar() {
     div.id = "$Downloader$_Ident";
 
     div.style.position = "fixed";
-    div.style.top = (window.innerHeight - 75) + "px";
+    div.style.top = (window.innerHeight - 35) + "px";
     div.style.left = "30px";
     div.style.width = "95%";
     div.style.height = "30px";

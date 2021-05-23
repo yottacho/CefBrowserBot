@@ -1,5 +1,5 @@
 {
   "name": "naver_blog_post",
   "site": "^https://((m.)?blog.naver.com|(m.)?post.naver.com|m.bboom.naver.com)/",
-  "script": "naver_blog_post.js"
+  "script": [ "naver_blog_post.js" ]
 }

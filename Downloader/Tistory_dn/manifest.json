@@ -1,0 +1,5 @@
+{
+  "name": "tistory_dn",
+  "site": "^https://(.+).tistory.com/",
+  "script": [ "tistory_dn.js" ]
+}

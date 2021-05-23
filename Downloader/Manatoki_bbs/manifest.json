@@ -1,5 +1,5 @@
 {
   "name": "manatoki_bbs",
   "site": "^https://manatoki(.+).net/(mana_free|humor|trantype|origin)/([0-9]+)",
-  "script": "bbs.js"
+  "script": [ "bbs.js" ]
 }
