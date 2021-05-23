@@ -1,5 +1,5 @@
 {
   "name": "manatoki_ad",
   "site": "^https://manatoki(.+).net/",
-  "script": "ad.js"
+  "script": [ "ad.js" ]
 }

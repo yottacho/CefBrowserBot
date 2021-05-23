@@ -1,5 +1,5 @@
 {
   "name": "jmana_dn",
   "site": "^https://(.*)jmana(.*)/bookdetail",
-  "script": "jmana_dn.js"
+  "script": [ "jmana_dn.js" ]
 }
