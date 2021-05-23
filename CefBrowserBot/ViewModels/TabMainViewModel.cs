@@ -1,4 +1,4 @@
-﻿using CefBrowserBot.Services;
+using CefBrowserBot.Services;
 using CefBrowserBot.Views;
 using FontAwesome5;
 using GalaSoft.MvvmLight;
@@ -64,6 +64,10 @@ namespace CefBrowserBot.ViewModels
                     return;
                 }
 
+                // left tab focus
+                if (TabListSource[SelectedTabIndex] == tab)
+                    SelectedTabIndex--;
+
                 TabListSource.Remove(tab);
 
                 if (x.GetType().GetInterface("GalaSoft.MvvmLight.ICleanup") != null)
@@ -82,8 +86,16 @@ namespace CefBrowserBot.ViewModels
                 ViewContent = null
             });
 
-            // first tab
-            AddNewTabCommand.Execute(null);
+            // open home tab
+            var startTabUrls = ConfigManager.Default.Config.HomeUrl.Split(new char[] { '\r', '\n' });
+            foreach (var startUrl in startTabUrls)
+            {
+                if (!string.IsNullOrEmpty(startUrl.Trim()))
+                {
+                    AddNewTabCommand.Execute(startUrl);
+                }
+            }
+
             SelectedTabIndex = 0;
         }
 
@@ -103,9 +115,9 @@ namespace CefBrowserBot.ViewModels
         {
             if (url == null)
             {
-                url = ConfigManager.Default.Config.HomeUrl;
-                if (string.IsNullOrEmpty(url))
-                    url = @"about:blank";
+                url = @"about:blank";
+                //if (string.IsNullOrEmpty(url))
+                //    url = @"about:blank";
             }
             Debug.WriteLine($"TabMainViewModel.OpenTab: {url}");
 

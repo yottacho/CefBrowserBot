@@ -1,4 +1,4 @@
-﻿using CefBrowserBot.Services;
+using CefBrowserBot.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,21 +11,23 @@ namespace CefBrowserBot.Extensions.Downloader
     {
         public static SiteExtensionInfo[] GetSiteExtension(string url)
         {
-            string[] ExtensionPaths =
-            {
-                // ConfigManager.Default.ApplicationStoragePath/Extensions/Downloader/**/manifest.json
-                Path.Combine(ConfigManager.Default.ApplicationStoragePath, @"Extensions", @"Downloader")
-            };
+            // (ConfigManager.Default.ApplicationStoragePath)/Extensions/Downloader/**/manifest.json
+            string ExtensionPath = Path.Combine(ConfigManager.Default.ApplicationStoragePath, @"Extensions", @"Downloader");
 
             List<SiteExtensionInfo> list = new List<SiteExtensionInfo>();
 
-            foreach (string searchPath in ExtensionPaths)
+            if (Directory.Exists(ExtensionPath))
             {
-                if (Directory.Exists(searchPath))
+                var info = GetManifestInfo(new DirectoryInfo(ExtensionPath), url);
+                list.AddRange(info);
+            }
+            else
+            {
+                try
                 {
-                    var info = GetManifestInfo(new DirectoryInfo(searchPath), url);
-                    list.AddRange(info);
+                    Directory.CreateDirectory(ExtensionPath);
                 }
+                catch (Exception) { }
             }
 
             return list.ToArray();
@@ -49,22 +51,27 @@ namespace CefBrowserBot.Extensions.Downloader
                     DownloaderManifest manifest = JsonConvert.DeserializeObject<DownloaderManifest>(manifestText);
 
                     Regex urlPattern = new Regex(manifest.Site);
-                    bool matched = urlPattern.IsMatch(url);
+                    if (!urlPattern.IsMatch(url))
+                        continue;
 
-                    if (matched)
+                    SiteExtensionInfo extension = new SiteExtensionInfo();
+                    extension.Name = manifest.Name;
+                    extension.Url = url;
+                    extension.ExtensionPath = dir.FullName;
+                    extension.ScriptText = "";
+
+                    // multi script support
+                    foreach (var scriptName in manifest.Script)
                     {
-                        string scriptFile = Path.Combine(dir.FullName, manifest.Script);
+                        string scriptFile = Path.Combine(dir.FullName, scriptName);
                         if (!File.Exists(scriptFile))
                             continue;
 
-                        SiteExtensionInfo extension = new SiteExtensionInfo();
-                        extension.Name = manifest.Name;
-                        extension.Url = url;
-                        extension.ExtensionPath = dir.FullName;
-                        extension.ScriptText = File.ReadAllText(scriptFile);
-                        list.Add(extension);
+                        extension.ScriptText += File.ReadAllText(scriptFile);
+                        extension.ScriptText += "\r\n\r\n"; // add blank line
                     }
 
+                    list.Add(extension);
                 }
                 catch (Exception)
                 {
@@ -79,7 +86,7 @@ namespace CefBrowserBot.Extensions.Downloader
         {
             public string Name { get; set; }
             public string Site { get; set; }
-            public string Script { get; set; }
+            public string[] Script { get; set; }
         }
     }
 

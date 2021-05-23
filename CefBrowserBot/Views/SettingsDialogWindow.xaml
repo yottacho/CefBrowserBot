@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="CefBrowserBot.Views.SettingsDialogWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,7 +8,7 @@
     x:Name="Window"
     Title="Settings"
     Width="500"
-    Height="240"
+    Height="300"
     DataContext="{Binding SettingsDialogWindowViewModel, Source={StaticResource Locator}}"
     ResizeMode="NoResize"
     mc:Ignorable="d">
@@ -50,8 +50,11 @@
                 <TextBox
                     Grid.Row="0"
                     Grid.Column="1"
+                    Height="60"
                     Margin="5"
-                    Text="{Binding HomeUrl}" />
+                    AcceptsReturn="True"
+                    Text="{Binding HomeUrl}"
+                    VerticalScrollBarVisibility="Auto" />
 
                 <TextBlock
                     Grid.Row="1"

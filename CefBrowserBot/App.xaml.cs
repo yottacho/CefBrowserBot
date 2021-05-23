@@ -1,4 +1,4 @@
-﻿using CefBrowserBot.Services;
+using CefBrowserBot.Services;
 using CefSharp;
 using CefSharp.Wpf;
 using System;
@@ -25,6 +25,11 @@ namespace CefBrowserBot
 #if DEBUG
             //System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.All;
 #endif
+
+            // create default extension folder
+            var extensionsPath = Path.Combine(localAppPath, @"Extensions");
+            if (!Directory.Exists(extensionsPath))
+                Directory.CreateDirectory(extensionsPath);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -54,6 +59,7 @@ namespace CefBrowserBot
 
             //Enables WebRTC
             settings.CefCommandLineArgs.Add("enable-media-stream");
+            settings.CefCommandLineArgs.Add("disable-web-security");    // off CORS
 
             // Make sure you set performDependencyCheck false
             Cef.Initialize(settings, performDependencyCheck: false, browserProcessHandler: null);
