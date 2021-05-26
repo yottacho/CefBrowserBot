@@ -94,6 +94,10 @@ function get_images_list() {
                 }
 
                 var u = new URL(imageUrl, location.href);
+
+                if (u.pathname.indexOf("print.png") >= 0 || u.pathname.indexOf("shingo.png"))
+                    continue;
+
                 images_url_list.push(u.href);
             }
         }

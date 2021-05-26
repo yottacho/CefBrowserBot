@@ -39,21 +39,21 @@ let $Downloader$_commonui = (function() {
         html +=   "<div style=\"float: left; height: 24px; \">";
         html +=     "<a href=\"javascript:;\" onclick=\"" + funcName  + "\" style=\"color: #f0f0f0;\">";
         html +=     "<div style=\"float: left; font-weight: normal; padding: 0 4px 0 0;\">분류:</div>";
-        html +=     "<div style=\"float: left; font-weight: bold; color: #ffff80; width: 250px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_cate\"> </div>";
+        html +=     "<div style=\"float: left; font-weight: bold; color: #ffff80; min-width: 150px; max-width: 250px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_cate\"> </div>";
         html +=     "</a>";
         html +=   "</div>";
         html +=   "<div style=\"float: left; margin: 0 4px 0 4px; height: 24px;\">";
         html +=     "<a href=\"javascript:;\" onclick=\"" + funcName  + "\" style=\"color: #f0f0f0;\">";
         html +=     "<div style=\"float: left; font-weight: normal; padding: 0 4px 0 0;\">제목:</div>";
-        html +=     "<div style=\"float: left; font-weight: bold; color: #ffff80; width: 250px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_title\"> </div>";
+        html +=     "<div style=\"float: left; font-weight: bold; color: #ffff80; min-width: 150px; max-width: 250px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_title\"> </div>";
         html +=     "</a>";
         html +=   "</div>";
         html +=   "<div style=\"float: left; height: 24px;\">";
-        html +=     "<div style=\"float: left; font-weight: normal; color: #bbbbbb; width: 120px;\" id=\"" + infoBarDiv.id + "_stat\"> </div>";
+        html +=     "<div style=\"float: left; font-weight: normal; color: #bbbbbb; min-width: 120px; max-width: 120px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_stat\"> </div>";
         html +=   "</div>";
 
         html +=   "<div style=\"float: left; margin: 0 4px 0 4px; height: 24px;\">";
-        html +=     "<div style=\"float: left; width: 250px;\" id=\"" + infoBarDiv.id + "_message\"> </div>";
+        html +=     "<div style=\"float: left; max-width: 250px; overflow: hidden;\" id=\"" + infoBarDiv.id + "_message\"> </div>";
         html +=   "</div>";
         html += "</div>";
 
