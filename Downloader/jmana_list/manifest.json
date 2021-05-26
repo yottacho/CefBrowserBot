@@ -1,0 +1,5 @@
+{
+  "name": "jmana_list",
+  "site": "^https://(.*)jmana(.*)/",
+  "script": [ "jmana_list.js" ]
+}

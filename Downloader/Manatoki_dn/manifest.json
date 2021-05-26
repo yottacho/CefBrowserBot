@@ -1,5 +1,5 @@
 {
   "name": "manatoki_dn",
   "site": "^https://manatoki(.+).net/comic/([0-9]+)",
-  "script": [ "dn.js" ]
+  "script": [ "..\\_common\\common_ui.js", "dn.js" ]
 }

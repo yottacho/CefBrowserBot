@@ -1,4 +1,4 @@
-console.log("---------- manatoki_list ----------");
+console.log("---------- jmana_list ----------");
 
 async function get_title_list() {
     var i;
@@ -7,11 +7,11 @@ async function get_title_list() {
 
     console.log("get_title_list()");
 
-    var titles_details = document.getElementsByClassName("wr-subject");
-    await check_title(titles_details, dummyinfo);
-
-    var titles = document.getElementsByClassName("post-subject");
-    await check_title(titles, procinfo);
+    var titles = document.getElementsByClassName("img-lst-wrap");
+    if (titles.length > 0) {
+        var list_tags = document.getElementsByTagName("li");
+        await check_title(list_tags, procinfo);
+    }
 
     console.log("count = " + procinfo.length);
     return procinfo;
@@ -20,7 +20,11 @@ async function get_title_list() {
 async function check_title(title_list, proc_info) {
     for (i = 0; i < title_list.length; i++) {
 
-        var linkTag = title_list[i].getElementsByTagName("a");
+        var dt = title_list[i].getElementsByClassName("books-db");
+        if (dt.length == 0)
+            continue;
+
+        var linkTag = dt[0].getElementsByTagName("a");
         if (linkTag.length == 0)
             continue;
 
@@ -32,7 +36,8 @@ async function check_title(title_list, proc_info) {
         if (text.indexOf("\r") > 0)
             text = text.substring(0, text.indexOf("\r"));
 
-        var registered = await $Downloader$.getRegisteredUrl(href, "manatoki");
+        href = href.replace("?", "/");
+        var registered = await $Downloader$.getRegisteredUrl(href, "jmana");
         if (registered == true) {
             try
             {
@@ -62,12 +67,18 @@ async function auto_download_list() {
     }
 
     if (autoDownloadFlag == true && procinfo.length > 0) {
-        await $Downloader$.startDownloadBot(procinfo, "manatoki");
+        await $Downloader$.startDownloadBot(procinfo, "jmana");
     }
 }
 
 // onload
 (function(){
+    var ads = document.getElementsByClassName("adsbygoogle");
+    var i;
+    for (i = 0; i < ads.length; i++) {
+        ads[i].style.display = "none";
+    }
+
     var autoDownloadContinue = window.sessionStorage.getItem("autoDownload");
     if (autoDownloadContinue == "y") {
         autoDownloadUrl = window.sessionStorage.getItem("autoDownloadUrl");
@@ -78,10 +89,10 @@ async function auto_download_list() {
         }
     }
 
-    setInterval("get_title_list()", 10 * 1000);
+    //setInterval("get_title_list()", 10 * 1000);
 
     // 업데이트에서만 동작
-    if (location.pathname == "/page/update" || location.pathname == "/bbs/page.php") {
+    if (location.pathname == "/comic_recent") {
         auto_download_list();
     }
     else {

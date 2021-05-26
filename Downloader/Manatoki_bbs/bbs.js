@@ -16,20 +16,23 @@ async function download_images() {
     var title = get_title();
     var img_list = get_images_list();
 
-    var msg_id = document.getElementById("$Downloader$_Message");
-    msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다운로드 요청중 ...</strong>";
+    if (img_list.length == 0) {
+        $Downloader$_commonui.setInfoBarMessageNone();
+        return;
+    }
+
+    $Downloader$_commonui.setInfoBarMessageStart();
 
     // 다운로드 요청
     var result = $Downloader$.downloadImages(title, img_list, location.href, navigator.userAgent);
 
     result.then(function (result) {
         console.log("downloadImages Success: [" + result + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #00ff00;\">다운로드 성공!</strong>";
+        $Downloader$_commonui.setInfoBarMessageSuccess();
 
     }).catch(function (error) {
         console.log("downloadImages Error: [" + error + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #ff0000;\">다운로드중 오류가 발생했습니다.</strong>";
-        //alert("다운로드 오류입니다.\r\n[" + error + "]");
+        $Downloader$_commonui.setInfoBarMessageError();
     });
 
 };
@@ -51,7 +54,7 @@ function get_images_list() {
         }
     }
 */
-    var contents = document.getElementsByClassName("view-content");
+    var contents = document.getElementsByClassName("view-padding");
     for (c_idx = 0; c_idx < contents.length; c_idx++) {
         var content = contents[c_idx];
 
@@ -206,46 +209,14 @@ function lazy_load_flush() {
 };
 
 // onload
-{
+(function() {
     lazy_load_flush();
 
-    // add div
-    var html = "";
     var title = get_title();
     var img_list = get_images_list();
 
-    var div = document.createElement("div");
-    div.id = "$Downloader$_Ident";
-
-    div.style.position = "fixed";
-    div.style.top = (window.innerHeight - 35) + "px";
-    div.style.left = "30px";
-    div.style.width = "95%";
-    div.style.height = "30px";
-
-    div.style.paddingTop = "5px";
-    div.style.paddingLeft = "10px";
-    div.style.paddingRight = "10px";
-    div.style.paddingBottom = "5px";
-
-    div.style.backgroundColor = "rgba(10, 10, 10, 0.7)";
-    div.style.color = "#f0f0f0";
-
-    html += "<table style=\"border: 0; padding: 0; border-spacing: 0; width: 100%; \"><tr>";
-    html += "<td><a href=\"javascript:download_images()\" style=\"color: #f0f0f0; \">";
-    html += "분류: <strong style=\"color:#ffff80;\">" + title[0] + "</strong>, ";
-    html += "제목: <strong style=\"color:#ffff80;\">" + title[1] + "</strong> </a>";
-    html += "<font color=\"#bbbbbb\">(이미지: " + img_list.length + "개)</font></td>";
-    html += "<td><span id=\"$Downloader$_Message\">&nbsp;</span></td>";
-    html += "</tr></table>";
-
-    //html += "<span><a href=\"javascript:download_images()\" style=\"color: #ffffff; \">";
-    //html += "분류: " + title[0] + ", 제목: " + title[1];
-    //html += " (이미지:" + img_list.length + "개)";
-    //html += "</a></span> &nbsp; &nbsp;<span id=\"$Downloader$_Message\">&nbsp;</span>";
-
-    div.innerHTML  = html;
-
-    document.body.appendChild(div);
-    // div add end
-}
+    $Downloader$_commonui.showInfoBar("download_images()");
+    $Downloader$_commonui.getInfoBarCategoryObj().innerHTML = title[0];
+    $Downloader$_commonui.getInfoBarTitleObj().innerHTML = title[1];
+    $Downloader$_commonui.getInfoBarStatusObj().innerHTML = "(이미지: " + img_list.length + "개)";
+})();

@@ -1,0 +1,5 @@
+{
+  "name": "fc2_blog_dn",
+  "site": "^https://(.*)blog.fc2.com/blog-entry-",
+  "script": [ "..\\_common\\common_ui.js", "fc2_blog_dn.js" ]
+}

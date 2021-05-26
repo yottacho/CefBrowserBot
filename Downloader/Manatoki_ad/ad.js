@@ -1,7 +1,7 @@
 console.log("---------- manatoki_ad ----------");
 
 // onload 로드
-{
+(function() {
     try {
         // hide ad-banner
         //$('.basic-banner').each(function (idx, item) { $(item).hide(); });
@@ -26,4 +26,4 @@ console.log("---------- manatoki_ad ----------");
             item[i].style.display = 'none';
         }
     }
-}
+})();
