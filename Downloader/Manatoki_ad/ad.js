@@ -13,10 +13,9 @@ console.log("---------- manatoki_ad ----------");
         banner = document.getElementsByClassName("board-tail-banner");
         hide_item(banner);
 
-
-        var scr_id = $('.view-wrap').offset();
+        //var scr_id = $('.view-wrap').offset();
         //var scr_id = $('#viewcomment').offset();
-        $('html, body').scrollTop(scr_id.top);
+        //$('html, body').scrollTop(scr_id.top);
 
     } catch (e) { }
 
