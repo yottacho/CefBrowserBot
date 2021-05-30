@@ -291,14 +291,22 @@ async function download_end(title) {
             var link = btnNext[0].getElementsByTagName("a");
             if (link.length > 0) {
                 console.log("다음 회차 이동 [" + link[0].href + "]");
-                setTimeout("location.href = \"" + link[0].href + "\";", 3 * 1000);
+
+                $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다음회차로 이동 ...</strong>";
+
+                setTimeout("location.href = \"" + link[0].href + "\";", 1 * 1000);
             }
             else {
                 console.log("다음 회차 정보가 오류임");
+
+                $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다음회차 오류!</strong>";
             }
         }
-        else
+        else {
             console.log("마지막 회차");
+
+            $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #00ff00;\">최종회차까지 정상</strong>";
+        }
     }
 
     // 다음회차 이동이 없는 경우
