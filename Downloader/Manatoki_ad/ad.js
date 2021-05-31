@@ -1,7 +1,7 @@
 console.log("---------- manatoki_ad ----------");
 
 // onload 로드
-{
+(function() {
     try {
         // hide ad-banner
         //$('.basic-banner').each(function (idx, item) { $(item).hide(); });
@@ -13,10 +13,9 @@ console.log("---------- manatoki_ad ----------");
         banner = document.getElementsByClassName("board-tail-banner");
         hide_item(banner);
 
-
-        var scr_id = $('.view-wrap').offset();
+        //var scr_id = $('.view-wrap').offset();
         //var scr_id = $('#viewcomment').offset();
-        $('html, body').scrollTop(scr_id.top);
+        //$('html, body').scrollTop(scr_id.top);
 
     } catch (e) { }
 
@@ -26,4 +25,4 @@ console.log("---------- manatoki_ad ----------");
             item[i].style.display = 'none';
         }
     }
-}
+})();

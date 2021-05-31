@@ -32,8 +32,12 @@ async function download_images() {
     var title = get_title();
     var img_list = get_images_list();
 
-    var msg_id = document.getElementById("$Downloader$_Message");
-    msg_id.innerHTML = "<font color=\"#99ccff\" style=\"font-size: 10pt;\">요청 상태: </font><strong style=\"color: #66ffff; font-size: 10pt;\">다운로드 요청중 ...</strong>";
+    if (img_list.length == 0) {
+        $Downloader$_commonui.setInfoBarMessageNone();
+        return;
+    }
+
+    $Downloader$_commonui.setInfoBarMessageStart();
 
     // 제목-화로 변경
     title[1] = (title[0].trim() + " " + title[1].trim()).trim();
@@ -43,12 +47,12 @@ async function download_images() {
 
     result.then(function (result) {
         console.log("downloadImages Success: [" + result + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\" style=\"font-size: 10pt;\">요청 상태: </font><strong style=\"color: #00ff00; font-size: 10pt;\">다운로드 성공!</strong>";
+        $Downloader$_commonui.setInfoBarMessageSuccess();
 
         download_end(title);
     }).catch(function (error) {
         console.log("downloadImages Error: [" + error + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\" style=\"font-size: 10pt;\">요청 상태: </font><strong style=\"color: #ff0000; font-size: 10pt;\">다운로드 오류!</strong>";
+        $Downloader$_commonui.setInfoBarMessageError();
 
         // 리로드 잘못하면 영원히 돌게 됨... 그냥 완료처리하는게 더 나음
         //setTimeout("location.reload();", 30 * 1000);
@@ -210,7 +214,9 @@ function get_title() {
 async function download_end(title) {
     console.log("다운로드 완료!");
     // 완료처리
-    await $Downloader$.registerUrl(location.href, "jmana", (title[0] + " " + title[1]).trim());
+    var href = location.href;
+    href = href.replace("?", "/");
+    await $Downloader$.registerUrl(href, "jmana", (title[0] + " " + title[1]).trim());
 
     var autoNextFlag = await $Downloader$.getAutoNextJumpFlag();
     console.log("다음회차 자동이동: " + autoNextFlag);
@@ -278,7 +284,15 @@ function lazy_load_flush() {
 
 // onload
 var jj = jQuery.noConflict();
-jj(window).ready(function(){
+//jj(window).ready(function(){
+(function(){
+    var ads = document.getElementsByClassName("adsbygoogle");
+    var i;
+    for (i = 0; i < ads.length; i++) {
+        ads[i].style.display = "none";
+    }
+
+
     lazy_load_flush();
 
     show_info_bar();
@@ -308,30 +322,14 @@ jj(window).ready(function(){
         timer = 1000;
 
     console.log("로드 대기 시간> " + (timer / 1000) + "초.");
+    $Downloader$_commonui.getInfoBarStatusObj().innerHTML = "(이미지.. "+(timer / 1000)+"초)";
+
     setTimeout("check_image_count()", timer);
-});
+})();
 
 function show_info_bar() {
-    // add div
-    var html = "";
     var title = get_title();
-
-    var div = document.createElement("div");
-    div.id = "$Downloader$_Ident";
-
-    div.style.position = "fixed";
-    div.style.top = (window.innerHeight - 35) + "px";
-    div.style.left = "30px";
-    div.style.width = "85%";
-    div.style.height = "30px";
-
-    div.style.paddingTop = "5px";
-    div.style.paddingLeft = "10px";
-    div.style.paddingRight = "10px";
-    div.style.paddingBottom = "5px";
-
-    div.style.backgroundColor = "rgba(10, 10, 10, 0.8)";
-    div.style.color = "#f0f0f0";
+    var img_list = get_images_list();
 
     var title_full = title[0] + " " + title[1];
     var title_1 = title[0];
@@ -339,25 +337,17 @@ function show_info_bar() {
         title_1 = title_1.substring(0, 40) + " ...";
     }
 
-    html += "<table style=\"border: 1; padding: 0; border-spacing: 0; width: 100%; \"><tr>";
-    html += "<td nowrap><a href=\"javascript:download_images()\" style=\"color: #f0f0f0; font-size: 10pt;\" title=\"" + title_full + "\">";
-    html += "분류: <strong style=\"color:#ffff80; font-size: 10pt;\">" + title_1 + "</strong>, ";
-    html += "제목: <strong style=\"color:#ffff80; font-size: 10pt;\">" + title[1] + "</strong> </a>";
-    html += "<font color=\"#bbbbbb\" style=\"font-size: 9pt;\"><span id=\"$Downloader$_img\">(로드중...)</span></font></td>";
-    html += "<td width=\"300\" nowrap><span id=\"$Downloader$_Message\">&nbsp;</span></td>";
-    html += "</tr></table>";
+    $Downloader$_commonui.showInfoBar("download_images()");
+    $Downloader$_commonui.getInfoBarCategoryObj().innerHTML = title[0];
+    $Downloader$_commonui.getInfoBarTitleObj().innerHTML = title[1];
 
-    div.innerHTML  = html;
-
-    document.body.appendChild(div);
-    // div add end
+    //html += "<td nowrap><a href=\"javascript:download_images()\" style=\"color: #f0f0f0; font-size: 10pt;\" title=\"" + title_full + "\">";
 }
 
 function check_image_count() {
     var img_list = get_images_list();
-    var msg_id = document.getElementById("$Downloader$_img");
 
-    msg_id.innerHTML = "(이미지: " + img_list.length + "개)";
+    $Downloader$_commonui.getInfoBarStatusObj().innerHTML =  "(이미지: " + img_list.length + "개)";
     check_completed = true;
 
     // 이미지 다운로드 처리

@@ -30,8 +30,12 @@ async function download_images() {
     var title = get_title();
     var img_list = get_images_list();
 
-    var msg_id = document.getElementById("$Downloader$_Message");
-    msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다운로드 요청중 ...</strong>";
+    if (img_list.length == 0) {
+        $Downloader$_commonui.setInfoBarMessageNone();
+        return;
+    }
+
+    $Downloader$_commonui.setInfoBarMessageStart();
 
     // 제목-화로 변경
     title[1] = (title[0].trim() + " " + title[1].trim()).trim();
@@ -41,12 +45,12 @@ async function download_images() {
 
     result.then(function (result) {
         console.log("downloadImages Success: [" + result + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #00ff00;\">다운로드 성공!</strong>";
+        $Downloader$_commonui.setInfoBarMessageSuccess();
 
         download_end(title);
     }).catch(function (error) {
         console.log("downloadImages Error: [" + error + "]");
-        msg_id.innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #ff0000;\">다운로드중 오류가 발생했습니다.</strong>";
+        $Downloader$_commonui.setInfoBarMessageError();
 
         // 리로드 잘못하면 영원히 돌게 됨... 그냥 완료처리하는게 더 나음
         //setTimeout("location.reload();", 30 * 1000);
@@ -287,14 +291,22 @@ async function download_end(title) {
             var link = btnNext[0].getElementsByTagName("a");
             if (link.length > 0) {
                 console.log("다음 회차 이동 [" + link[0].href + "]");
-                setTimeout("location.href = \"" + link[0].href + "\";", 3 * 1000);
+
+                $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다음회차로 이동 ...</strong>";
+
+                setTimeout("location.href = \"" + link[0].href + "\";", 1 * 1000);
             }
             else {
                 console.log("다음 회차 정보가 오류임");
+
+                $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #66ffff;\">다음회차 오류!</strong>";
             }
         }
-        else
+        else {
             console.log("마지막 회차");
+
+            $Downloader$_commonui.getInfoBarMessageObj().innerHTML = "<font color=\"#99ccff\">요청 상태: </font><strong style=\"color: #00ff00;\">최종회차까지 정상</strong>";
+        }
     }
 
     // 다음회차 이동이 없는 경우
@@ -329,41 +341,16 @@ function lazy_load_flush() {
 };
 
 // onload
-{
+(function(){
     lazy_load_flush();
 
-    // add div
-    var html = "";
     var title = get_title();
     var img_list = get_images_list();
 
-    var div = document.createElement("div");
-    div.id = "$Downloader$_Ident";
+    $Downloader$_commonui.showInfoBar("download_images()");
+    $Downloader$_commonui.getInfoBarCategoryObj().innerHTML = title[0];
+    $Downloader$_commonui.getInfoBarTitleObj().innerHTML = title[1];
+    $Downloader$_commonui.getInfoBarStatusObj().innerHTML = "(이미지: " + img_list.length + "개)";
 
-    div.style.position = "fixed";
-    div.style.top = (window.innerHeight - 35) + "px";
-    div.style.left = "30px";
-    div.style.width = "85%";
-    div.style.height = "30px";
+})();
 
-    div.style.paddingTop = "5px";
-    div.style.paddingLeft = "10px";
-    div.style.paddingRight = "10px";
-    div.style.paddingBottom = "5px";
-
-    div.style.backgroundColor = "rgba(10, 10, 10, 0.8)";
-    div.style.color = "#f0f0f0";
-
-    html += "<table style=\"border: 0; padding: 0; border-spacing: 0; width: 100%; \"><tr>";
-    html += "<td><a href=\"javascript:download_images()\" style=\"color: #f0f0f0; \">";
-    html += "분류: <strong style=\"color:#ffff80;\">" + title[0] + "</strong>, ";
-    html += "제목: <strong style=\"color:#ffff80;\">" + title[1] + "</strong> </a>";
-    html += "<font color=\"#bbbbbb\">(이미지: " + img_list.length + "개)</font></td>";
-    html += "<td><span id=\"$Downloader$_Message\">&nbsp;</span></td>";
-    html += "</tr></table>";
-
-    div.innerHTML  = html;
-
-    document.body.appendChild(div);
-    // div add end
-}
