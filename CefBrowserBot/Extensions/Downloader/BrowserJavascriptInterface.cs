@@ -209,78 +209,111 @@ namespace CefBrowserBot.Extensions.Downloader
             item.Status = DownloadLogStatus.Download;
             DispatcherHelperService.Invoke(() => { Settings.RaiseActionLogChanged(); });
 
-            using (WebClient wc = new WebClient())
+            for (int retryCnt = 0; retryCnt < 3; retryCnt++)
             {
-                wc.Headers["Accept"] = "image/webp,image/apng,image/*,*/*;q=0.8";
-                //wc.Headers["Accept-Encoding"] = "gzip, deflate";
-                wc.Headers["Accept-Language"] = "en-US,en;q=0.9";
-                wc.Headers["Referer"] = item.Url;
-                wc.Headers["Sec-Fetch-Dest"] = "image";
-                wc.Headers["Sec-Fetch-Mode"] = "no-cors";
-                wc.Headers["Sec-Fetch-Site"] = "cross-site";
-                wc.Headers["User-Agent"] = item.Agent;
-
-                Debug.WriteLine($"BrowserJavascriptInterface.DownloadImage: (WebClient) {item.SourceUrl} => {item.FullPathName}.");
+                item.Status = DownloadLogStatus.Download;
+                item.Message = "";
 
                 bool downloadFinished = false;
-                var timer = Task.Run(() =>
+                using (WebClient wc = new WebClient())
                 {
-                    // 60 sec = 60,000 msec
-                    for (int i = 0; i < 600; i++)
-                    {
-                        Thread.Sleep(100);
-                        if (downloadFinished)
-                            break;
-                    }
+                    wc.Headers["Accept"] = "image/webp,image/apng,image/*,*/*;q=0.8";
+                    //wc.Headers["Accept-Encoding"] = "gzip, deflate";
+                    wc.Headers["Accept-Language"] = "en-US,en;q=0.9";
+                    wc.Headers["Referer"] = item.Url;
+                    wc.Headers["Sec-Fetch-Dest"] = "image";
+                    wc.Headers["Sec-Fetch-Mode"] = "no-cors";
+                    wc.Headers["Sec-Fetch-Site"] = "cross-site";
+                    wc.Headers["User-Agent"] = item.Agent;
 
-                    if (!downloadFinished)
+                    Debug.WriteLine($"BrowserJavascriptInterface.DownloadImage: (WebClient) {item.SourceUrl} => {item.FullPathName}.");
+
+                    var timer = Task.Run(() =>
+                    {
+                        // 60 sec = 60,000 msec
+                        for (int i = 0; i < 600; i++)
+                        {
+                            Thread.Sleep(100);
+                            if (downloadFinished)
+                                break;
+                        }
+
+                        if (!downloadFinished)
+                        {
+                            item.Status = DownloadLogStatus.Error;
+                            item.Message = "Timeout";
+                            wc.CancelAsync();
+                        }
+                    });
+
+                    try
+                    {
+                        await wc.DownloadFileTaskAsync(new Uri(item.SourceUrl), item.FullPathName);
+                        downloadFinished = true;
+
+                        // 확장자 처리
+                        string extension;
+                        using (var fs = File.OpenRead(item.FullPathName))
+                        {
+                            int len = (int)Math.Min(fs.Length, 50);
+                            byte[] buf = new byte[len];
+                            fs.Read(buf, 0, len);
+                            fs.Close();
+
+                            extension = FileHeader.GetImageExtension(buf);
+                        }
+
+                        if (extension != null)
+                        {
+                            if (File.Exists(item.FullPathName + extension))
+                                File.Delete(item.FullPathName + extension);
+                            File.Move(item.FullPathName, item.FullPathName + extension);
+
+                            item.FileName += extension;
+                            item.FullPathName += extension;
+                        }
+
+                        await timer;
+                    }
+                    catch (Exception ex)
                     {
                         item.Status = DownloadLogStatus.Error;
-                        item.Message = "Timeout";
-                        wc.CancelAsync();
+                        item.Message = ex.Message;
+                        Debug.WriteLine($"Download error {ex.Message}");
+                        if (ex.InnerException != null)
+                        {
+                            Debug.WriteLine($"    : {ex.InnerException.Message}");
+                        }
+                        /*
+                        var respHeader = wc.ResponseHeaders;
+                        var respHeaderKey = respHeader.AllKeys;
+                        Debug.WriteLine("Response Header ------------------------------");
+                        foreach (var key in respHeaderKey)
+                        {
+                            Debug.WriteLine($"{key}: {respHeader[key]}");
+                        }
+                        Debug.WriteLine("------------------------------");
+                        */
+
+                        if (File.Exists(item.FullPathName))
+                            File.Delete(item.FullPathName);
+
+                        //MessageBox.Show($"Download {item.SourceUrl} to {item.FileName}.\r\n{ex.Message}", "예외 발생");
                     }
-                });
-
-                try
-                {
-                    await wc.DownloadFileTaskAsync(new Uri(item.SourceUrl), item.FullPathName);
-                    downloadFinished = true;
-
-                    // 확장자 처리
-                    string extension;
-                    using (var fs = File.OpenRead(item.FullPathName))
-                    {
-                        int len = (int)Math.Min(fs.Length, 50);
-                        byte[] buf = new byte[len];
-                        fs.Read(buf, 0, len);
-                        fs.Close();
-
-                        extension = FileHeader.GetImageExtension(buf);
-                    }
-
-                    if (extension != null)
-                    {
-                        if (File.Exists(item.FullPathName + extension))
-                            File.Delete(item.FullPathName + extension);
-                        File.Move(item.FullPathName, item.FullPathName + extension);
-
-                        item.FileName += extension;
-                        item.FullPathName += extension;
-                    }
-
-                    await timer;
                 }
-                catch (Exception ex)
+
+                if (downloadFinished)
+                    break;
+                else
                 {
-                    item.Status = DownloadLogStatus.Error;
-                    item.Message = ex.Message;
-
-                    if (File.Exists(item.FullPathName))
-                        File.Delete(item.FullPathName);
-
-                    //MessageBox.Show($"Download {item.SourceUrl} to {item.FileName}.\r\n{ex.Message}", "예외 발생");
+                    Debug.WriteLine($"Error -> Retry {retryCnt}: {item.Message}");
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (Exception) { }
                 }
-            }
+            } // end retry
 
             if (item.Status != DownloadLogStatus.Error)
             {
