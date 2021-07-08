@@ -10,8 +10,19 @@ console.log("---------- manatoki_ad ----------");
         var banner = document.getElementsByClassName("basic-banner");
         hide_item(banner);
 
+        banner = document.getElementsByClassName("basic-banner");
+        hide_item(banner);
+
         banner = document.getElementsByClassName("board-tail-banner");
         hide_item(banner);
+
+        banner = document.getElementById("id_mbv");
+        if (banner != null)
+            banner.style.display = 'none';
+
+        banner = document.getElementById("main-banner-view");
+        if (banner != null)
+            banner.style.display = 'none';
 
         //var scr_id = $('.view-wrap').offset();
         //var scr_id = $('#viewcomment').offset();
@@ -25,4 +36,6 @@ console.log("---------- manatoki_ad ----------");
             item[i].style.display = 'none';
         }
     }
+
+
 })();
